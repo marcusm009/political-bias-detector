@@ -3,6 +3,9 @@
 	"version": "1.0",
 	"name": "Bias Detector",
 	"description": "Used to discover political bias in news articles",
+	"background": {
+		"scripts": ["background.js"]
+	},
 	"content_scripts": [
 		{
 			"matches": [
@@ -14,9 +17,11 @@
 			"run_at": "document_end"
 		}
 	],
+	"browser_action": {
+		"default_popup": "popup.html"
+	 },
 	"permissions": [
-		"*://*/*",
-		"webRequest",
-		"webRequestBlocking"
+		"tabs",
+		"<all_urls>"
 	]
 }

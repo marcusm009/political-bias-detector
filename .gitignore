@@ -1,0 +1,5 @@
+*.npy
+.ipynb_checkpoints
+*.csv
+*.tar.gz
+universal-sentence-encoder-large

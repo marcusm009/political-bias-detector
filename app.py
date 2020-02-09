@@ -1,52 +1,64 @@
-from flask import Flask
-from flask_restful import reqparse, abort, Api, Resource
-import pickle
-import numpy as np
-# from model import NLPModel
+from starlette.applications import Starlette
+from starlette.responses import UJSONResponse
+import gpt_2_simple as gpt2
+import tensorflow as tf
+import uvicorn
+import os
+import gc
 
-app = Flask(__name__)
-api = Api(app)
+app = Starlette(debug=False)
 
-# model = NLPModel()
+sess = gpt2.start_tf_sess(threads=1)
+gpt2.load_gpt2(sess)
 
-# clf_path = 'lib/models/BiasClassifier.pkl'
-# with open(clf_path, 'rb') as f:
-#     model.clf = pickle.load(f)
+# Needed to avoid cross-domain issues
+response_header = {
+    'Access-Control-Allow-Origin': '*'
+}
 
-# argument parsing
-parser = reqparse.RequestParser()
-parser.add_argument('query')
-
-
-class PredictBias(Resource):
-    def get(self):
-        # use parser and find the user's query
-        args = parser.parse_args()
-        user_query = args['query']
-
-        # Do prediction
-        prediction = 0
-        pred_proba = np.array([0,0])
-
-        # Output either 'Negative' or 'Positive' along with the score
-        if prediction == 0:
-            pred_text = 'Negative'
-        else:
-            pred_text = 'Positive'
-
-        # round the predict proba value and set to new variable
-        confidence = round(pred_proba[0], 3)
-
-        # create JSON object
-        output = {'prediction': pred_text, 'confidence': int(confidence)}
-
-        return output
+generate_count = 0
 
 
-# Setup the Api resource routing here
-# Route the URL to the resource
-api.add_resource(PredictBias, '/')
+@app.route('/', methods=['GET', 'POST', 'HEAD'])
+async def homepage(request):
+    global generate_count
+    global sess
 
+    if request.method == 'GET':
+        params = request.query_params
+    elif request.method == 'POST':
+        params = await request.json()
+    elif request.method == 'HEAD':
+        return UJSONResponse({'text': ''},
+                             headers=response_header)
+
+    query = "// {} ||".format(params.get('query',''))
+
+    text = gpt2.generate(sess,
+                         length=1,
+                         temperature=0.7,
+                         top_k=0,
+                         top_p=0,
+                         prefix=query,
+                         return_as_list=True
+                         )[0]
+    try:
+        prediction = text.split(' || ')[1]
+    except:
+        prediction = "Unsure"
+
+    generate_count += 1
+    if generate_count == 8:
+        # Reload model to prevent Graph/Session from going OOM
+        tf.reset_default_graph()
+        sess.close()
+        sess = gpt2.start_tf_sess(threads=1)
+        gpt2.load_gpt2(sess)
+        generate_count = 0
+
+    gc.collect()
+    return UJSONResponse({'prediction': prediction},
+                         headers=response_header)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    uvicorn.run(app, host='127.0.0.1', port=int(os.environ.get('PORT', 5000)))

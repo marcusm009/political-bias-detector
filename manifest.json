@@ -4,24 +4,13 @@
 	"name": "Bias Detector",
 	"description": "Used to discover political bias in news articles",
 	"background": {
+		"persistent": false,
 		"scripts": ["background.js"]
-	},
-	"content_scripts": [
-		{
-			"matches": [
-				"*://*/*"
-			],
-			"js": [
-				"content.js"
-			],
-			"run_at": "document_end"
-		}
-	],
+	  },
 	"browser_action": {
-		"default_popup": "popup.html"
+		"default_icon": "icon.png"
 	 },
 	"permissions": [
-		"tabs",
-		"<all_urls>"
+		"https://twitter.com/*"
 	]
 }

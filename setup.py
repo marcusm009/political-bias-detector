@@ -7,8 +7,8 @@ def main():
     extract_model(model_name)
 
 
-def extract_model(model_name, checkpoint_dir='lib/checkpoints'):
-    """ Extracts the model from the checkpoints folder """
+def extract_model(model_name, checkpoint_dir='models'):
+    """ Extracts the model from the models folder """
 
     model_tar = os.path.join(checkpoint_dir, model_name) + '.tar'
 

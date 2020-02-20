@@ -1,0 +1,17 @@
+{
+	"manifest_version": 2,
+	"version": "1.0",
+	"name": "Bias Detector",
+	"description": "Used to discover political bias in news articles",
+	"icons": 
+		{
+			"16": "images/puppy16.png",
+			"48": "images/puppy48.png",
+			"128": "images/puppy128.png"
+		},
+	"browser_action":
+		{
+			"default_icon": "images/puppy.png",
+			"default_popup": "popup.html"
+		}
+}

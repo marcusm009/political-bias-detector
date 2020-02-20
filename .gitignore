@@ -1,9 +1,4 @@
 .ipynb_checkpoints
-*.ipynb
-*.npy
-*.csv
-*.txt
-*.tar
-/checkpoint
-/models
 /data
+/models
+*.ipynb

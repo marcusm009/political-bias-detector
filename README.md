@@ -1,1 +1,1 @@
-# political-bias-detector
+# Political Bias Detector

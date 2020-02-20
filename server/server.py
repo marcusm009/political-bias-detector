@@ -5,6 +5,7 @@ import tensorflow as tf
 import uvicorn
 import os
 import gc
+import sys
 
 app = Starlette(debug=False)
 
@@ -61,4 +62,12 @@ async def homepage(request):
                          headers=response_header)
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='127.0.0.1', port=int(os.environ.get('PORT', 5000)))
+    host = '127.0.0.1'
+    port = 5000
+
+    if len(sys.argv) > 1:
+        host = sys.argv[1]
+    if len(sys.argv) > 2:
+        port = int(sys.argv[2])
+
+    uvicorn.run(app, host=host, port=int(os.environ.get('PORT', port)))

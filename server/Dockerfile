@@ -13,15 +13,15 @@ COPY . .
 # Extract desired model and remove archive
 RUN tar -xzf ${model_name} && rm ${model_name}
 
-# Create the environment:
+# Create the environment
 RUN conda env create -f environment.yml
 
-# Make RUN commands use the new environment:
-SHELL ["conda", "run", "-n", "poli-bias", "/bin/bash", "-c"]
+# Activate conda environment
+ENV PATH /opt/conda/envs/poli-bias/bin:$PATH
+RUN /bin/bash -c "source activate poli-bias"
 
 # Expose the correct port
 EXPOSE 5000
 
 # The code to run when container is started:
-ENTRYPOINT ["conda", "run", "-n", "poli-bias", "python", "-u", "server.py"]
-# ENTRYPOINT ["python", "-u", "server.py"]
+ENTRYPOINT ["python", "server.py", "0.0.0.0", "5000"]

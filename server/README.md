@@ -10,6 +10,6 @@
 3. Run server:
 `sudo docker container run -it -p 5000:5000 political-bias-detector`
 
-### Extra:
+### Extra
 * Clean up unused docker volumes:
 `sudo docker system prune -a --volumes`

@@ -3,12 +3,6 @@
 	"version": "1.0",
 	"name": "Bias Detector",
 	"description": "Used to discover political bias in news articles",
-	"content_scripts": [
-		{
-			"matches": ["https://twitter.com/*"],
-			"js": ["content.js"]
-		}
-	],
 	"icons": 
 		{
 			"16": "images/puppy16.png",
@@ -19,5 +13,8 @@
 		{
 			"default_icon": "images/puppy.png",
 			"default_popup": "popup.html"
-		}
+		},
+	"permissions": [
+		"activeTab"
+	]
 }

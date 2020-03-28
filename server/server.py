@@ -6,6 +6,7 @@ import uvicorn
 import os
 import gc
 import sys
+import time
 
 app = Starlette(debug=False)
 
@@ -35,6 +36,10 @@ async def homepage(request):
 
     query = "// {} ||".format(params.get('query',''))
 
+    print("Query received: {}".format(params.get('query','')))
+
+    start_time = time.time()
+
     text = gpt2.generate(sess,
                          length=1,
                          temperature=0.7,
@@ -43,10 +48,16 @@ async def homepage(request):
                          prefix=query,
                          return_as_list=True
                          )[0]
+
+    pred_time = time.time() - start_time
+
     try:
         prediction = text.split(' || ')[1]
     except:
         prediction = "Unsure"
+
+    print("Prediction: {}".format(prediction))
+    print("Time elapsed: {:.2f}s".format(pred_time))
 
     generate_count += 1
     if generate_count == 8:
@@ -58,8 +69,9 @@ async def homepage(request):
         generate_count = 0
 
     gc.collect()
-    return UJSONResponse({'prediction': prediction},
-                         headers=response_header)
+    return UJSONResponse({'prediction': prediction,
+                          'pred_time': '{:.2f}s'.format(pred_time)},
+                          headers=response_header)
 
 if __name__ == '__main__':
     host = '127.0.0.1'

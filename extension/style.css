@@ -1,4 +1,5 @@
 /* Center the loader */
+/*
 #loader {
   position: absolute;
   left: 50%;
@@ -14,6 +15,14 @@
   height: 120px;
   -webkit-animation: spin 2s linear infinite;
   animation: spin 2s linear infinite;
+}*/
+
+#loader {
+  -webkit-animation: spin 2s linear infinite;
+  animation: spin 2s linear infinite;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
 }
 
 @-webkit-keyframes spin {
@@ -26,7 +35,8 @@
   100% { transform: rotate(360deg); }
 }
 
-#myDiv {
+#output {
   display: none;
   text-align: center;
+  background-color: coral;
 }

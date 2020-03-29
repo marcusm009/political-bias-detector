@@ -3,7 +3,7 @@
 	"version": "1.0",
 	"name": "Bias Detector",
 	"description": "Used to discover political bias in news articles",
-	"icons": 
+	"icons":
 		{
 			"16": "images/puppy16.png",
 			"48": "images/puppy48.png",
@@ -15,6 +15,14 @@
 			"default_popup": "popup.html"
 		},
 	"permissions": [
-		"activeTab"
-	]
+		"activeTab",
+		"storage"
+	],
+	"web_accessible_resources": [
+		"config.json"
+	],
+	"background": {
+		"scripts": ["background.js"],
+		"persistent": false
+	}
 }

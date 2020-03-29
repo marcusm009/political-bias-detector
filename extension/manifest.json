@@ -11,7 +11,7 @@
 		},
 	"browser_action":
 		{
-			"default_icon": "images/puppy.png",
+			"default_icon": "images/donkey.png",
 			"default_popup": "popup.html"
 		},
 	"permissions": [
@@ -19,7 +19,9 @@
 		"storage"
 	],
 	"web_accessible_resources": [
-		"config.json"
+		"config.json",
+		"images/donkey.png",
+		"images/elephant.png"
 	],
 	"background": {
 		"scripts": ["background.js"],

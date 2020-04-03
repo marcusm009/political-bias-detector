@@ -1,12 +1,18 @@
 from starlette.applications import Starlette
 from starlette.responses import UJSONResponse
-import gpt_2_simple as gpt2
 import tensorflow as tf
 import uvicorn
 import os
 import gc
 import sys
 import time
+
+# import gpt_2_simple as gpt2
+
+import gpt_2_simple
+from patches.sample import sample_sequence
+gpt_2_simple.src.sample.sample_sequence = sample_sequence
+gpt2 = gpt_2_simple
 
 app = Starlette(debug=False)
 
@@ -42,7 +48,7 @@ async def homepage(request):
 
     text = gpt2.generate(sess,
                          length=1,
-                         temperature=0.7,
+                         temperature=0.1,
                          top_k=0,
                          top_p=0,
                          prefix=query,

@@ -7,11 +7,18 @@ import gc
 import sys
 import time
 
+import numpy as np
+
 # import gpt_2_simple as gpt2
 
 import gpt_2_simple
+
 from patches.sample import sample_sequence
 gpt_2_simple.src.sample.sample_sequence = sample_sequence
+
+from patches.gpt_2 import generate
+# gpt_2_simple.gpt_2.generate = generate
+
 gpt2 = gpt_2_simple
 
 app = Starlette(debug=False)
@@ -46,21 +53,25 @@ async def homepage(request):
 
     start_time = time.time()
 
-    text = gpt2.generate(sess,
-                         length=1,
-                         temperature=0.1,
-                         top_k=0,
-                         top_p=0,
-                         prefix=query,
-                         return_as_list=True
-                         )[0]
+    proba = generate(sess,
+                     query,
+                     temperature=1,
+                     top_k=0,
+                     top_p=0,
+                     )
+
+    print(proba)
+
+    print(np.flip(np.argsort(proba)))
+
+    np.save('probs', proba)
 
     pred_time = time.time() - start_time
 
-    try:
-        prediction = text.split(' || ')[1]
-    except:
-        prediction = "Unsure"
+    # try:
+    #     prediction = output.split(' || ')[1]
+    # except:
+    prediction = "Unsure"
 
     print("Prediction: {}".format(prediction))
     print("Time elapsed: {:.2f}s".format(pred_time))

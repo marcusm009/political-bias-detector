@@ -1,45 +1,46 @@
 """ A monkey patch for the sample_sequence function of gpt-2-simple """
 import tensorflow as tf
 
+import time
+
 from gpt_2_simple.src import model
 
-def top_k_logits(logits, k):
-    if k == 0:
-        # no truncation
-        return logits
-
-    def _top_k():
-        values, _ = tf.nn.top_k(logits, k=k)
-        min_values = values[:, -1, tf.newaxis]
-        return tf.compat.v1.where(
-            logits < min_values,
-            tf.ones_like(logits, dtype=logits.dtype) * -1e10,
-            logits,
-        )
-    return tf.cond(
-        pred=tf.equal(k, 0),
-        true_fn=lambda: logits,
-        false_fn=lambda: _top_k(),
-    )
-
-
-def top_p_logits(logits, p):
-    with tf.compat.v1.variable_scope('top_p_logits'):
-        logits_sort = tf.sort(logits, direction='DESCENDING')
-        probs_sort = tf.nn.softmax(logits_sort)
-        probs_sums = tf.cumsum(probs_sort, axis=1, exclusive=True)
-        logits_masked = tf.compat.v1.where(probs_sums < p, logits_sort, tf.ones_like(
-            logits_sort)*1000)  # [batchsize, vocab]
-        min_logits = tf.reduce_min(input_tensor=logits_masked, axis=1, keepdims=True)  # [batchsize, 1]
-        return tf.compat.v1.where(
-            logits < min_logits,
-            tf.ones_like(logits, dtype=logits.dtype) * -1e10,
-            logits,
-        )
+# def top_k_logits(logits, k):
+#     if k == 0:
+#         # no truncation
+#         return logits
+#
+#     def _top_k():
+#         values, _ = tf.nn.top_k(logits, k=k)
+#         min_values = values[:, -1, tf.newaxis]
+#         return tf.compat.v1.where(
+#             logits < min_values,
+#             tf.ones_like(logits, dtype=logits.dtype) * -1e10,
+#             logits,
+#         )
+#     return tf.cond(
+#         pred=tf.equal(k, 0),
+#         true_fn=lambda: logits,
+#         false_fn=lambda: _top_k(),
+#     )
+#
+#
+# def top_p_logits(logits, p):
+#     with tf.compat.v1.variable_scope('top_p_logits'):
+#         logits_sort = tf.sort(logits, direction='DESCENDING')
+#         probs_sort = tf.nn.softmax(logits_sort)
+#         probs_sums = tf.cumsum(probs_sort, axis=1, exclusive=True)
+#         logits_masked = tf.compat.v1.where(probs_sums < p, logits_sort, tf.ones_like(
+#             logits_sort)*1000)  # [batchsize, vocab]
+#         min_logits = tf.reduce_min(input_tensor=logits_masked, axis=1, keepdims=True)  # [batchsize, 1]
+#         return tf.compat.v1.where(
+#             logits < min_logits,
+#             tf.ones_like(logits, dtype=logits.dtype) * -1e10,
+#             logits,
+#         )
 
 def sample_sequence(*, hparams, length, start_token=None,
-                    batch_size=None, context=None, temperature=1,
-                    top_k=0, top_p=0.0):
+                    batch_size=None, context=None, temperature=1):
     if start_token is None:
         assert context is not None, 'Specify exactly one of start_token and context!'
     else:
@@ -60,26 +61,10 @@ def sample_sequence(*, hparams, length, start_token=None,
         }
 
     with tf.compat.v1.name_scope('sample_sequence'):
-        # Don't feed the last context token -- leave that to the loop below
-        # TODO: Would be slightly faster if we called step on the entire context,
-        # rather than leaving the last token transformer calculation to the while loop.
-        context_output = step(hparams, context[:, :-1])
+        start_time = time.time()
+        context_output = step(hparams, context)
+        print("total time 1: {}".format(time.time() - start_time))
 
-        def body(past, prev, output):
-            next_outputs = step(hparams, prev[:, tf.newaxis], past=past)
-            logits = next_outputs['logits'][:, -1, :] / tf.cast(temperature, tf.float32)
-            if top_p > 0.0:
-                logits = top_p_logits(logits, p=top_p)
-            else:
-                logits = top_k_logits(logits, k=top_k)
-            print(logits)
-            samples = tf.random.categorical(
-                logits, num_samples=1, dtype=tf.int32)
-            print(samples)
-            return tf.concat([output, samples], axis=1)
+        logits = context_output['logits'][:, -1, :] / tf.cast(temperature, tf.float32)
 
-        tokens = body(context_output['presents'], context[:, -1], context)
-
-        print(tokens)
-
-        return tokens
+        return tf.nn.softmax(logits)[0]

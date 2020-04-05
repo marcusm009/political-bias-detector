@@ -13,10 +13,10 @@ import numpy as np
 
 import gpt_2_simple
 
-from patches.sample import sample_sequence
-gpt_2_simple.src.sample.sample_sequence = sample_sequence
+# from patches.sample import sample_sequence
+# gpt_2_simple.src.sample.sample_sequence = sample_sequence
 
-from patches.gpt_2 import generate
+from patches.gpt_2 import predict
 # gpt_2_simple.gpt_2.generate = generate
 
 gpt2 = gpt_2_simple
@@ -52,28 +52,15 @@ async def homepage(request):
     print("Query received: {}".format(params.get('query','')))
 
     start_time = time.time()
-
-    proba = generate(sess,
-                     query,
-                     temperature=1,
-                     top_k=0,
-                     top_p=0,
-                     )
-
-    print(proba)
-
-    print(np.flip(np.argsort(proba)))
-
-    np.save('probs', proba)
-
+    preds, proba = predict(sess, query)
     pred_time = time.time() - start_time
 
-    # try:
-    #     prediction = output.split(' || ')[1]
-    # except:
-    prediction = "Unsure"
+    # Add third option
+    proba = np.concatenate((proba, np.array([1-np.sum(proba)])))
+    preds.append("Other")
 
-    print("Prediction: {}".format(prediction))
+    print("Predictions: {}".format(preds))
+    print("Probabilities: {}".format(proba))
     print("Time elapsed: {:.2f}s".format(pred_time))
 
     generate_count += 1
@@ -86,7 +73,8 @@ async def homepage(request):
         generate_count = 0
 
     gc.collect()
-    return UJSONResponse({'prediction': prediction,
+    return UJSONResponse({'prediction': preds[0],
+                          'confidence': '{:.2f}'.format(proba[0]),
                           'pred_time': '{:.2f}s'.format(pred_time)},
                           headers=response_header)
 

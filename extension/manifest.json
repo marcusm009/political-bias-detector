@@ -21,7 +21,8 @@
 	"web_accessible_resources": [
 		"config.json",
 		"images/donkey.png",
-		"images/elephant.png"
+		"images/elephant.png",
+		"images/unsure.png"
 	],
 	"background": {
 		"scripts": ["background.js"],

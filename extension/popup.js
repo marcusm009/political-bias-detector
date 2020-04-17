@@ -22,6 +22,7 @@ chrome.tabs.executeScript( {
   var configURL = chrome.extension.getURL("config.json");
   var donkeyURL = chrome.extension.getURL("images/donkey.png");
   var elephantURL = chrome.extension.getURL("images/elephant.png");
+  var unsureURL = chrome.extension.getURL("images/unsure.png");
 
   fetch(configURL)
     .then((response) => {
@@ -31,14 +32,13 @@ chrome.tabs.executeScript( {
       console.log(data);
 
       var url = data.ip + ":" + data.port + "/?query=";
-      var str = selection[0];
-      str = str.replace(/\s+/g, '+');
+      var str = encodeURIComponent(parseTweet(selection[0]));
       var query = url.concat(str);
 
       var client = new HttpClient();
       client.get(query, function(res) {
 
-        document.getElementById("output").innerHTML = createResponseHTML(res, donkeyURL, elephantURL);
+        document.getElementById("output").innerHTML = createResponseHTML(res, donkeyURL, elephantURL, unsureURL);
 
         document.getElementById("loader").style.display = "none";
         document.getElementById("output").style.display = "inline-block";
@@ -48,26 +48,56 @@ chrome.tabs.executeScript( {
 
 });
 
-function createResponseHTML(res, donkeyURL, elephantURL) {
+function createResponseHTML(res, donkeyURL, elephantURL, unsureURL) {
   var response = JSON.parse(res);
-  var url = "";
+  var pred = getActualPrediction(response.prediction, response.confidence);
 
-  if(response.prediction == "Democrat") {
+  var url = "";
+  if(pred == "Democrat" || pred == "Possibly Democrat") {
     url = donkeyURL;
   }
-  else {
+  else if(pred == "Republican" || pred == "Possibly Republican") {
     url = elephantURL;
+  }
+  else {
+    url = unsureURL;
   }
 
   html = `<div style="content:url(${url});max-width:100%;height:auto;"></div>`
   html += "<h1>";
-  html += "Prediction: ";
-  html += response.prediction;
+  html += pred;
   html += "</h1>";
-  html += "<h4>";
+  html += "<h3>";
+  html += "Top Choice: ";
+  html += response.prediction;
+  html += "</h3>";
+  html += "<h3>";
+  html += "Confidence: ";
+  html += parseFloat(response.confidence)*100;
+  html += "%</h3>";
+  html += "<h3>";
   html += "Total prediciton time: ";
   html += response.pred_time;
-  html += "</h4>";
+  html += "</h3>";
   return html;
+}
 
+function getActualPrediction(pred, confidence) {
+  if(confidence >= 0.8) {
+    return pred;
+  }
+  if(confidence >= 0.6) {
+    return "Possibly " + pred;
+  }
+  return "Unsure";
+}
+
+function parseTweet(str) {
+  // Replace newlines
+  str = str.replace(/\n/g, ' <nl> ').replace(/\r/g, ' <nl> ');
+  // Replace hashtags
+  str = str.replace(/#\w+\b/g, ' <ht> ');
+  // Replace mentions
+  str = str.replace(/@\w+\b/g, ' <@> ');
+  return str
 }

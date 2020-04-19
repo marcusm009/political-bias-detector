@@ -1,5 +1,4 @@
 .ipynb_checkpoints
-/data
-/models
+/data_processing
 *.ipynb
 *.pyc

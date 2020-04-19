@@ -1,4 +1,4 @@
-// JS function that can perform get requestions
+// JS function that can perform get requests
 var HttpClient = function() {
   this.get = function(aUrl, aCallback) {
     var anHttpRequest = new XMLHttpRequest();
@@ -15,9 +15,6 @@ var HttpClient = function() {
 chrome.tabs.executeScript( {
   code: "window.getSelection().toString();"
 }, function(selection) {
-
-  // chrome.extension.getBackgroundPage().console.log('foo');
-  // console.log('foo');
 
   var configURL = chrome.extension.getURL("config.json");
   var donkeyURL = chrome.extension.getURL("images/donkey.png");

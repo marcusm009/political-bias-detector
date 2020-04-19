@@ -31,16 +31,16 @@ spec:
         app: poli-bias-app
     spec:
       containers:
-      - image: gcr.io/political-bias-project/poli-bias-img
+      - image: gcr.io/poli-bias-project/poli-bias-img
         imagePullPolicy: Always
         name: poli-bias-img
         resources:
           limits:
             cpu: 1500m
-            memory: 4Gi
+            memory: 12Gi
           requests:
-            cpu: "1"
-            memory: 3584Mi
+            cpu: 1000m
+            memory: 8Gi
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
       dnsPolicy: ClusterFirst

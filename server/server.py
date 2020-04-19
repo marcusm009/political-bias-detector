@@ -1,38 +1,23 @@
 from starlette.applications import Starlette
 from starlette.responses import UJSONResponse
+from urllib.parse import unquote
 import tensorflow as tf
 import uvicorn
 import os
 import gc
 import sys
 import time
-
 import numpy as np
 
-# import gpt_2_simple as gpt2
-
 import gpt_2_simple
-
-# from patches.sample import sample_sequence
-# gpt_2_simple.src.sample.sample_sequence = sample_sequence
-
 from patches.gpt_2 import predict
-# gpt_2_simple.gpt_2.generate = generate
 
 gpt2 = gpt_2_simple
-
 app = Starlette(debug=False)
-
 sess = gpt2.start_tf_sess(threads=1)
 gpt2.load_gpt2(sess)
 
-# Needed to avoid cross-domain issues
-response_header = {
-    'Access-Control-Allow-Origin': '*'
-}
-
 generate_count = 0
-
 
 @app.route('/', methods=['GET', 'POST', 'HEAD'])
 async def homepage(request):
@@ -45,11 +30,11 @@ async def homepage(request):
         params = await request.json()
     elif request.method == 'HEAD':
         return UJSONResponse({'text': ''},
-                             headers=response_header)
+                             headers={'Access-Control-Allow-Origin': '*'})
 
-    query = "// {} ||".format(params.get('query',''))
+    query = "// {} ||".format(unquote(params.get('query','')))
 
-    print("Query received: {}".format(params.get('query','')))
+    print("Query received: {}".format(unquote(params.get('query',''))))
 
     start_time = time.time()
     preds, proba = predict(sess, query)
@@ -76,7 +61,7 @@ async def homepage(request):
     return UJSONResponse({'prediction': preds[0],
                           'confidence': '{:.2f}'.format(proba[0]),
                           'pred_time': '{:.2f}s'.format(pred_time)},
-                          headers=response_header)
+                          headers={'Access-Control-Allow-Origin': '*'})
 
 if __name__ == '__main__':
     host = '127.0.0.1'

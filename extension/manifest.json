@@ -2,16 +2,16 @@
 	"manifest_version": 2,
 	"version": "1.0",
 	"name": "Bias Detector",
-	"description": "Used to discover political bias in news articles",
+	"description": "Used to discover political bias in text",
 	"icons":
 		{
-			"16": "images/puppy16.png",
-			"48": "images/puppy48.png",
-			"128": "images/puppy128.png"
+			"16": "images/poli-bias-icon.png",
+			"48": "images/poli-bias-icon.png",
+			"128": "images/poli-bias-icon.png"
 		},
 	"browser_action":
 		{
-			"default_icon": "images/donkey.png",
+			"default_icon": "images/poli-bias-icon.png",
 			"default_popup": "popup.html"
 		},
 	"permissions": [
@@ -21,7 +21,8 @@
 	"web_accessible_resources": [
 		"config.json",
 		"images/donkey.png",
-		"images/elephant.png"
+		"images/elephant.png",
+		"images/unsure.png"
 	],
 	"background": {
 		"scripts": ["background.js"],

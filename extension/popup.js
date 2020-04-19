@@ -40,7 +40,7 @@ chrome.tabs.executeScript( {
 
         document.getElementById("output").innerHTML = createResponseHTML(res, donkeyURL, elephantURL, unsureURL);
 
-        document.getElementById("loader").style.display = "none";
+        document.getElementById("loading").style.display = "none";
         document.getElementById("output").style.display = "inline-block";
       });
 
@@ -67,18 +67,18 @@ function createResponseHTML(res, donkeyURL, elephantURL, unsureURL) {
   html += "<h1>";
   html += pred;
   html += "</h1>";
-  html += "<h3>";
-  html += "Top Choice: ";
+  html += "<p>";
+  html += "Top Choice: <b>";
   html += response.prediction;
-  html += "</h3>";
-  html += "<h3>";
-  html += "Confidence: ";
+  html += "</b></p>";
+  html += "<p>";
+  html += "Confidence: <b>";
   html += parseFloat(response.confidence)*100;
-  html += "%</h3>";
-  html += "<h3>";
-  html += "Total prediciton time: ";
+  html += "%</b></p>";
+  html += "<p>";
+  html += "Total prediciton time: <b>";
   html += response.pred_time;
-  html += "</h3>";
+  html += "</b></p>";
   return html;
 }
 

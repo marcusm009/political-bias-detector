@@ -70,7 +70,7 @@ function createResponseHTML(res, donkeyURL, elephantURL, unsureURL) {
   html += "</b></p>";
   html += "<p>";
   html += "Confidence: <b>";
-  html += parseFloat(response.confidence)*100;
+  html += (parseFloat(response.confidence)*100).toFixed(1);
   html += "%</b></p>";
   html += "<p>";
   html += "Total prediciton time: <b>";
